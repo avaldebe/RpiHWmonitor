@@ -22,7 +22,7 @@ def sinfo(info):
        CPU="top -bn1 | grep load | awk '{printf \"%.2f\", $(NF-2)}'",
        MEM="free -m | awk 'NR==2{printf \"MEM: %.2f%%\", $3*100/$2 }'",
        DISK="df -h | awk '$NF==\"/\"{printf \"%s\", $5}'",
-       TEMP="vcgencmd measure_temp | cut -d '=' -f 2 | head --bytes -1",
+       TEMP="cat /sys/class/thermal/thermal_zone0/temp | awk '{printf \"%.1f°C\", $0/1000}'",
     )[info.upper()]
     return subprocess.check_output(cmd, shell=True).decode('UTF-8')
 
