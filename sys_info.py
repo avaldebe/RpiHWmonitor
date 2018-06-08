@@ -1,31 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Copyright (c) 2014-18 Richard Hull and contributors
-# See LICENSE.rst for details.
-# PYTHON_ARGCOMPLETE_OK
-
 """
 Display basic system information.
-
-Needs psutil (+ dependencies) installed::
-
-  $ sudo apt-get install python-dev
-  $ sudo -H pip install psutil
 """
 
 import os
-import sys
 import time
-from datetime import datetime
-
 import subprocess
-
 from luma.emulator.device import pygame
 from luma.core.render import canvas
 from PIL import ImageFont
 
 
-def sinfo(stat):
+def sinfo(info):
     """
     Shell scripts for system monitoring from
     https://unix.stackexchange.com/a/391529
@@ -36,47 +23,48 @@ def sinfo(stat):
        MEM="free -m | awk 'NR==2{printf \"MEM: %.2f%%\", $3*100/$2 }'",
        DISK="df -h | awk '$NF==\"/\"{printf \"%s\", $5}'",
        TEMP="vcgencmd measure_temp | cut -d '=' -f 2 | head --bytes -1",
-    )[stat.upper()]
-    return subprocess.check_output(cmd, shell = True )
+    )[info.upper()]
+    return subprocess.check_output(cmd, shell=True).decode('UTF-8')
 
 
-
-def stats(device):
-    # use custom font
-    font_path = "%s/%s"%(os.path.dirname(__file__), "fonts/%s")
-    font = ImageFont.truetype(font_path%'Montserrat-Light.ttf', 12)
-    font2 = ImageFont.truetype(font_path%'fontawesome-webfont.ttf', 14)
-    font_icon_big = ImageFont.truetype(font_path%'fontawesome-webfont.ttf', 20)
-    font_text_big = ImageFont.truetype(font_path%'Montserrat-Medium.ttf', 19)
-
-
+def stats(device, info, font):
+    """
+    draw info to canvas
+    """
     with canvas(device) as draw:
-        # Icons
-        draw.text(( 0, 0), chr(61931), font=font2, fill="white")
-        draw.text((50,52), chr(61888), font=font2, fill="white")
-        draw.text(( 0,52), chr(62152), font=font2, fill="white")
-        draw.text(( 0,15), chr(62171), font=font_icon_big, fill="white")
+        for text, (xy0, icon, xy1, size) in info.items():
+            draw.text(xy0, icon, font=font['icon_%s'%size], fill="white")
+            draw.text(xy1, sinfo(text), font=font['text_%s'%size], fill="white")
 
-        # Text
-        draw.text((18, 0), 'IP',  font=font, fill="white")
-        draw.text((22,12), 'CPU', font=font_text_big, fill="white")
-        draw.text(( 0,36), 'Mem', font=font, fill="white")
-        draw.text((66,52), 'Disk', font=font, fill="white")
-        try:
-            draw.text((10,52), 'Temp',  font=font, fill="white")
-        except KeyError:
-             # not enabled/available
-             pass
 
 def main():
+    device = pygame()
+
+    # custom fonts
+    font_path = "%s/fonts/%%s"%os.path.dirname(__file__)
+    font = dict(
+        text_small = ImageFont.truetype(font_path%'Montserrat-Light.ttf', 12),
+        text_large = ImageFont.truetype(font_path%'Montserrat-Medium.ttf', 19),
+        icon_small = ImageFont.truetype(font_path%'fontawesome-webfont.ttf', 14),
+        icon_large = ImageFont.truetype(font_path%'fontawesome-webfont.ttf', 20),
+    )
+
+    # layout
+    info = dict(#((x0, y0), icon, (x1, y1), size)
+        ip   = (( 0,  0), '\uf1eb', (18,  0), 'small'),
+        cpu  = (( 0, 15), '\uf2db', (22, 12), 'large'),
+        mem  = (( 0, 36), ''      , ( 0, 36), 'small'),
+        disk = ((50, 52), '\uf1c0', (66, 52), 'small'),
+        temp = (( 0, 52), '\uf2c8', (10, 52), 'small'),
+    )
+
     while True:
-        stats(device)
+        stats(device, info, font)
         time.sleep(5)
 
 
 if __name__ == "__main__":
     try:
-        device = pygame()
         main()
     except KeyboardInterrupt:
         pass

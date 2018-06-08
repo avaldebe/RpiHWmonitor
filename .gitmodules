@@ -1,6 +1,0 @@
-[submodule "luma.examples"]
-	path = luma.examples
-	url = git@github.com:rm-hull/luma.examples.git
-[submodule "RPI_SSD1306"]
-	path = RPI_SSD1306
-	url = git@github.com:xxlukas42/RPI_SSD1306.git
