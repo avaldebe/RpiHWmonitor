@@ -83,7 +83,7 @@ def network(iface):
 def stats(device):
     # use custom font
     font_path = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                'fonts', 'C&C Red Alert [INET].ttf'))
+                                'fonts', 'Montserrat-Light.ttf'))
     font2 = ImageFont.truetype(font_path, 12)
 
     with canvas(device) as draw:
