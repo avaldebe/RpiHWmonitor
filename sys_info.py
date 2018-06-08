@@ -19,7 +19,7 @@ def sinfo(info):
     """
     cmd = dict(
        IP="hostname -I | cut -d\' \' -f1 | head --bytes -1",
-       CPU="top -bn1 | grep load | awk '{printf \"%.2f\", $(NF-2)}'",
+       CPU="top -bn1 | grep load | sed 's:, : :g;s:,:.:g;' | awk '{printf \"%.2f\", $(NF-2)}'",
        MEM="free -m | awk 'NR==2{printf \"MEM: %.2f%%\", $3*100/$2 }'",
        DISK="df -h | awk '$NF==\"/\"{printf \"%s\", $5}'",
        TEMP="cat /sys/class/thermal/thermal_zone0/temp | awk '{printf \"%.1f°C\", $0/1000}'",
