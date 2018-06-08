@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # Copyright (c) 2014-18 Richard Hull and contributors
 # See LICENSE.rst for details.
@@ -18,87 +18,55 @@ import sys
 import time
 from datetime import datetime
 
-if os.name != 'posix':
-    sys.exit('{} platform not supported'.format(os.name))
+import subprocess
 
 from luma.emulator.device import pygame
 from luma.core.render import canvas
 from PIL import ImageFont
 
-try:
-    import psutil
-except ImportError:
-    print("The psutil library was not found. Run 'sudo -H pip install psutil' to install it.")
-    sys.exit()
 
-
-# TODO: custom font bitmaps for up/down arrows
-# TODO: Load histogram
-
-
-def bytes2human(n):
+def sinfo(stat):
     """
-    >>> bytes2human(10000)
-    '9K'
-    >>> bytes2human(100001221)
-    '95M'
+    Shell scripts for system monitoring from
+    https://unix.stackexchange.com/a/391529
     """
-    symbols = ('K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
-    prefix = {}
-    for i, s in enumerate(symbols):
-        prefix[s] = 1 << (i + 1) * 10
-    for s in reversed(symbols):
-        if n >= prefix[s]:
-            value = int(float(n) / prefix[s])
-            return '%s%s' % (value, s)
-    return "%sB" % n
+    cmd = dict(
+       IP="hostname -I | cut -d\' \' -f1 | head --bytes -1",
+       CPU="top -bn1 | grep load | awk '{printf \"%.2f\", $(NF-2)}'",
+       MEM="free -m | awk 'NR==2{printf \"MEM: %.2f%%\", $3*100/$2 }'",
+       DISK="df -h | awk '$NF==\"/\"{printf \"%s\", $5}'",
+       TEMP="vcgencmd measure_temp | cut -d '=' -f 2 | head --bytes -1",
+    )[stat.upper()]
+    return subprocess.check_output(cmd, shell = True )
 
-
-def cpu_usage():
-    # load average, uptime
-    uptime = datetime.now() - datetime.fromtimestamp(psutil.boot_time())
-    av1, av2, av3 = os.getloadavg()
-    return "Ld:%.1f %.1f %.1f Up: %s" \
-        % (av1, av2, av3, str(uptime).split('.')[0])
-
-
-def mem_usage():
-    usage = psutil.virtual_memory()
-    return "Mem: %s %.0f%%" \
-        % (bytes2human(usage.used), 100 - usage.percent)
-
-
-def disk_usage(dir):
-    usage = psutil.disk_usage(dir)
-    return "SD:  %s %.0f%%" \
-        % (bytes2human(usage.used), usage.percent)
-
-
-def network(iface):
-    stat = psutil.net_io_counters(pernic=True)[iface]
-    return "%s: Tx%s, Rx%s" % \
-           (iface, bytes2human(stat.bytes_sent), bytes2human(stat.bytes_recv))
 
 
 def stats(device):
     # use custom font
-    font_path = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                'fonts', 'Montserrat-Light.ttf'))
-    font2 = ImageFont.truetype(font_path, 12)
+    font_path = "%s/%s"%(os.path.dirname(__file__), "fonts/%s")
+    font = ImageFont.truetype(font_path%'Montserrat-Light.ttf', 12)
+    font2 = ImageFont.truetype(font_path%'fontawesome-webfont.ttf', 14)
+    font_icon_big = ImageFont.truetype(font_path%'fontawesome-webfont.ttf', 20)
+    font_text_big = ImageFont.truetype(font_path%'Montserrat-Medium.ttf', 19)
+
 
     with canvas(device) as draw:
-        draw.text((0, 0), cpu_usage(), font=font2, fill="white")
-        if device.height >= 32:
-            draw.text((0, 14), mem_usage(), font=font2, fill="white")
+        # Icons
+        draw.text(( 0, 0), chr(61931), font=font2, fill="white")
+        draw.text((50,52), chr(61888), font=font2, fill="white")
+        draw.text(( 0,52), chr(62152), font=font2, fill="white")
+        draw.text(( 0,15), chr(62171), font=font_icon_big, fill="white")
 
-        if device.height >= 64:
-            draw.text((0, 26), disk_usage('/'), font=font2, fill="white")
-            try:
-                draw.text((0, 38), network('wlan0'), font=font2, fill="white")
-            except KeyError:
-                # no wifi enabled/available
-                pass
-
+        # Text
+        draw.text((18, 0), 'IP',  font=font, fill="white")
+        draw.text((22,12), 'CPU', font=font_text_big, fill="white")
+        draw.text(( 0,36), 'Mem', font=font, fill="white")
+        draw.text((66,52), 'Disk', font=font, fill="white")
+        try:
+            draw.text((10,52), 'Temp',  font=font, fill="white")
+        except KeyError:
+             # not enabled/available
+             pass
 
 def main():
     while True:
