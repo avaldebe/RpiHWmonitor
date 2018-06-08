@@ -15,3 +15,21 @@ Based on the [sys_info example][luma.examples].
 [sys_info]:  https://github.com/rm-hull/luma.examples/blob/master/examples/sys_info.py
 [luma.oled]: https://github.com/rm-hull/luma.oled
 [luma.emulator]: https://github.com/rm-hull/luma.emulator
+
+
+### Installation for python3
+[luma.emulator][install.emulator]
+```bash
+sudo apt install python3-dev python3-pip build-essential
+sudo apt install libsdl-dev libportmidi-dev libsdl-ttf2.0-dev libsdl-mixer1.2-dev libsdl-image1.2-dev
+sudo pip3 install --upgrade luma.emulator
+```
+
+[luma.olded][install.oled]
+```bash
+sudo apt-get install python3-dev python3-pip libfreetype6-dev libjpeg-dev build-essential
+sudo -H pip3 install --upgrade luma.oled
+```
+
+[install.emulator]: https://luma-oled.readthedocs.io/en/latest/install.html
+[install.oled]: https://luma-oled.readthedocs.io/en/latest/install.html
