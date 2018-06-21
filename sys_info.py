@@ -7,9 +7,14 @@ Display basic system information.
 import os
 import time
 import subprocess
-from luma.emulator.device import pygame
-from luma.core.render import canvas
 from PIL import ImageFont
+try:
+    from luma.emulator.device import pygame
+except ImportError:
+    from luma.core.interface.serial import i2c
+    from luma.oled.device import ssd1306
+finally:
+    from luma.core.render import canvas
 
 
 def sinfo(info):
@@ -38,7 +43,11 @@ def stats(device, info, font):
 
 
 def main():
-    device = pygame()
+    try:
+        serial = i2c(port=1, address=0x3C)
+        device = ssd1306(serial)
+    except NameError:
+        device = pygame()
 
     # custom fonts
     font_path = "%s/fonts/%%s"%os.path.dirname(__file__)
