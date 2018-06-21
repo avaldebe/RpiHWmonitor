@@ -6,6 +6,7 @@ Display basic system information.
 
 import os
 import time
+import psutil
 import subprocess
 from PIL import ImageFont
 try:
@@ -17,29 +18,32 @@ finally:
     from luma.core.render import canvas
 
 
-def sinfo(info):
+def sys_info():
     """
     Shell scripts for system monitoring from
     https://unix.stackexchange.com/a/391529
     """
-    cmd = dict(
-       IP="hostname -I | cut -d\' \' -f1 | head --bytes -1",
-       CPU="top -bn1 | grep load | sed 's:, : :g;s:,:.:g;' | awk '{printf \"%.0f%\", $(NF-2)*100}'",
-       MEM="free -m | awk 'NR==2{printf \"MEM: %.0f%%\", $3*100/$2 }'",
-       DISK="df -h | awk '$NF==\"/\"{printf \"%s\", $5}'",
-       TEMP="cat /sys/class/thermal/thermal_zone0/temp | awk '{printf \"%.0f°C\", $0/1000}'",
-    )[info.upper()]
-    return subprocess.check_output(cmd, shell=True).decode('UTF-8')
+    info = dict(
+       ip="hostname -I | cut -d\' \' -f1 | head --bytes -1",
+       cpu='%.0f, %.0f, %.0f%%'%tuple(load*100 for load in list(os.getloadavg())),
+       mem='MEM: %.0f%%'%psutil.virtual_memory().percent,
+       disk='%.0f%%'%psutil.disk_usage("/").percent,
+       temp="cat /sys/class/thermal/thermal_zone0/temp | awk '{printf \"%.0f°C\", $0/1000}'",
+    )
+    for cmd in ['ip', 'temp']:
+        info[cmd] = subprocess.check_output(info[cmd], shell=True).decode('UTF-8')
+    return info
 
 
 def stats(device, info, font):
     """
     draw info to canvas
     """
+    sinfo = sys_info()
     with canvas(device) as draw:
         for text, (xy0, icon, xy1, size) in info.items():
             draw.text(xy0, icon, font=font['icon_%s'%size], fill="white")
-            draw.text(xy1, sinfo(text), font=font['text_%s'%size], fill="white")
+            draw.text(xy1, sinfo[text], font=font['text_%s'%size], fill="white")
 
 
 def main():

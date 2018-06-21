@@ -34,6 +34,7 @@ sudo -H pip3 install --upgrade luma.oled
 Additional dependencies on [Raspbian Stretch Lite][raspbian]
 ```bash
 sudo apt-get install libopenjp2-7 libtiff5
+sudo -H pip3 install psutil
 ```
 
 [install.emulator]: https://luma-oled.readthedocs.io/en/latest/install.html
