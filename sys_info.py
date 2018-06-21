@@ -19,28 +19,20 @@ finally:
     from luma.core.render import canvas
 
 
-def sys_info():
-    """
-    Shell scripts for system monitoring from
-    https://unix.stackexchange.com/a/391529
-    """
-    info = dict(
-       ip=socket.gethostbyname('%s.local'%socket.gethostname()),
-       cpu='%.0f, %.0f, %.0f%%'%tuple(load*100 for load in list(os.getloadavg())),
-       mem='MEM: %.0f%%'%psutil.virtual_memory().percent,
-       disk='%.0f%%'%psutil.disk_usage("/").percent,
-       temp="cat /sys/class/thermal/thermal_zone0/temp | awk '{printf \"%.0f°C\", $0/1000}'",
-    )
-    for cmd in ['temp']:
-        info[cmd] = subprocess.check_output(info[cmd], shell=True).decode('UTF-8')
-    return info
-
-
 def stats(device, info, font):
     """
     draw info to canvas
     """
-    sinfo = sys_info()
+    sinfo = dict(
+        ip=socket.gethostbyname('%s.local'%socket.gethostname()),
+        cpu='%.0f, %.0f, %.0f%%'%tuple(load*100 for load in os.getloadavg()),
+        mem='MEM: %.0f%%'%psutil.virtual_memory().percent,
+        disk='%.0f%%'%psutil.disk_usage("/").percent,
+        temp=subprocess.check_output(
+            """awk '{printf "%.0f°C", $0/1000}' < /sys/class/thermal/thermal_zone0/temp""",
+            shell=True,
+        ).decode('UTF-8'),
+    )
     with canvas(device) as draw:
         for text, (xy0, icon, xy1, size) in info.items():
             draw.text(xy0, icon, font=font['icon_%s'%size], fill="white")
