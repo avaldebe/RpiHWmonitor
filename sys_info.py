@@ -25,7 +25,7 @@ def stats(device, info, font):
     """
     sinfo = dict(
         ip=socket.gethostbyname('%s.local'%socket.gethostname()),
-        cpu='%.0f, %.0f, %.0f%%'%tuple(load*100 for load in os.getloadavg()),
+        cpu='%.0f%%'%(os.getloadavg()[0]*100),
         mem='MEM: %.0f%%'%psutil.virtual_memory().percent,
         disk='%.0f%%'%psutil.disk_usage("/").percent,
         temp=subprocess.check_output(
@@ -34,7 +34,9 @@ def stats(device, info, font):
         ).decode('UTF-8'),
     )
     with canvas(device) as draw:
-        for text, (xy0, icon, xy1, size) in info.items():
+        for text, (xy, icon, dxy, size) in info.items():
+            xy0=xy
+            xy1=(xy[0]+dxy[0],xy[1]+dxy[1])
             draw.text(xy0, icon, font=font['icon_%s'%size], fill="white")
             draw.text(xy1, sinfo[text], font=font['text_%s'%size], fill="white")
 
@@ -56,12 +58,12 @@ def main():
     )
 
     # layout
-    info = dict(#((x0, y0), icon, (x1, y1), size)
+    info = dict(#((x, y), icon, (dx, dy), size)
         ip   = (( 0,  0), '\uf1eb', (18,  0), 'small'),
-        cpu  = (( 0, 15), '\uf2db', (22, 12), 'large'),
-        mem  = (( 0, 36), ''      , ( 0, 36), 'small'),
-        disk = ((50, 52), '\uf1c0', (66, 52), 'small'),
-        temp = (( 0, 52), '\uf2c8', (10, 52), 'small'),
+        cpu  = (( 0, 15), '\uf2db', (22, -3), 'large'),
+        mem  = (( 0, 36), ''      , ( 0,  0), 'small'),
+        disk = ((76, 36), '\uf1c0', (13,  0), 'small'),
+        temp = ((78, 18), '\uf2c8', (10,  0), 'small'),
     )
 
     while True:
