@@ -7,6 +7,7 @@ Display basic system information.
 import os
 import time
 import psutil
+import socket
 import subprocess
 from PIL import ImageFont
 try:
@@ -24,13 +25,13 @@ def sys_info():
     https://unix.stackexchange.com/a/391529
     """
     info = dict(
-       ip="hostname -I | cut -d\' \' -f1 | head --bytes -1",
+       ip=socket.gethostbyname('%s.local'%socket.gethostname()),
        cpu='%.0f, %.0f, %.0f%%'%tuple(load*100 for load in list(os.getloadavg())),
        mem='MEM: %.0f%%'%psutil.virtual_memory().percent,
        disk='%.0f%%'%psutil.disk_usage("/").percent,
        temp="cat /sys/class/thermal/thermal_zone0/temp | awk '{printf \"%.0f°C\", $0/1000}'",
     )
-    for cmd in ['ip', 'temp']:
+    for cmd in ['temp']:
         info[cmd] = subprocess.check_output(info[cmd], shell=True).decode('UTF-8')
     return info
 
