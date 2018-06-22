@@ -71,7 +71,7 @@ def main():
 
     while True:
         stats(device, info, font)
-        time.sleep(5)
+        time.sleep(60)
 
 
 if __name__ == "__main__":
