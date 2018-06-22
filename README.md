@@ -40,3 +40,10 @@ sudo -H pip3 install psutil
 [install.emulator]: https://luma-oled.readthedocs.io/en/latest/install.html
 [install.oled]: https://luma-oled.readthedocs.io/en/latest/install.html
 [raspbian]: https://www.raspberrypi.org/downloads/raspbian/
+
+### Start after boot
+
+Add the following lines to your crontab (`crontab -e`)
+```
+@reboot $HOME/RpiHWmonitor/sys_info.py
+```
