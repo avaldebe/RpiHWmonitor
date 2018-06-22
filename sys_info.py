@@ -21,13 +21,19 @@ finally:
 
 def stats(device, info, font):
     """
-    draw info to canvas
+    draw system info to canvas
+    - host: nodename kernel-release (same as `uname -nr`)
+    - ip: IP address
+    - cpu: mean CPU load [%], calulcated as 1 min mean load / number of cores * 100
+    - mem: memory usage [%], calculated as (total - available) / total * 100
+    - disk: disk usage [%]
+    - temp: CPU temperature [°C]
     """
     sinfo = dict(
         host='{0[1]} {0[2]}'.format(os.uname()),
 #       boot = datetime.fromtimestamp(psutil.boot_time()).strftime("%F %R"),
         ip=socket.gethostbyname('%s.local'%socket.gethostname()),
-        cpu='%.0f%%'%(os.getloadavg()[0]*100),
+        cpu='%.0f%%'%(os.getloadavg()[0]/os.cpu_count()*100),
         mem='MEM: %.0f%%'%psutil.virtual_memory().percent,
         disk='%.0f%%'%psutil.disk_usage("/").percent,
         temp=subprocess.check_output(
