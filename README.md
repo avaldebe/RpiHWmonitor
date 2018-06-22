@@ -45,5 +45,7 @@ sudo -H pip3 install psutil
 
 Add the following lines to your crontab (`crontab -e`)
 ```
-@reboot $HOME/RpiHWmonitor/sys_info.py
+@reboot bash -lc $HOME/RpiHWmonitor/sys_info.py
 ```
+The `bash -l` is needed to get the right `$PATH` for `iwconfig`,
+which in turn is needed for the signal strength.
