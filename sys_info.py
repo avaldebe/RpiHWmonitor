@@ -73,8 +73,10 @@ def main():
     try:
         serial = i2c(port=1, address=0x3C)
         device = ssd1306(serial)
+        forever = True
     except NameError:
         device = pygame()
+        forever = False
 
     # custom fonts
     font_path = "%s/fonts/%%s"%os.path.dirname(__file__)
@@ -96,9 +98,11 @@ def main():
         (78, 33, '\uf2c8', 10,  0, 'small', sinfo('temp')),
     )
 
-    while True:
+    stats(device, info, font)
+    time.sleep(15)  # 1st update after 15s
+    while forever:
         stats(device, info, font)
-        time.sleep(60)
+        time.sleep(60) # update every minute
 
 
 if __name__ == "__main__":
