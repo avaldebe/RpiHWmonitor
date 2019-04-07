@@ -90,4 +90,34 @@ which in turn is needed for the wifi signal strength.
 
 #### Run as a service
 
-TBD
+ The `systemd` service file ([RpiHWmonitor.service](RpiHWmonitor.service))
+ defines a new service called RpiHWmonitor,
+ which is to be launched once the multi-user environment is available.
+
+```bash
+# copy the service file
+sudo cp RpiHWmonitor.service /lib/systemd/system/
+
+# set the required permissions
+sudo chmod 644 /lib/systemd/system/RpiHWmonitor.service
+
+# enhable new service
+sudo systemctl daemon-reload
+
+# start/stop/reload service
+sudo systemctl start RpiHWmonitor
+#sudo systemctl stop RpiHWmonitor
+sudo systemctl reload-or-restart RpiHWmonitor
+
+# check service status
+systemctl status RpiHWmonitor
+
+# start after reboot
+sudo systemctl  enable   RpiHWmonitor # start after reboot
+#sudo systemctl dishable RpiHWmonitor # don't start
+sudo reboot
+```
+
+For more info about `systemctl` usage, see this [tutorial][systemctl].
+
+[systemctl]: https://www.digitalocean.com/community/tutorials/how-to-use-systemctl-to-manage-systemd-services-and-units

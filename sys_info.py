@@ -35,7 +35,7 @@ def sinfo(key):
     ip = lambda : socket.gethostbyname('%s.local'%socket.gethostname())
 
     wifi = lambda : subprocess.check_output(
-        "iwconfig wlan0 2>/dev/null | grep Signal | sed 's:.*=::'",
+        "/sbin/iwconfig wlan0 2>/dev/null | grep Signal | sed 's:.*=::'",
         shell=True,
     ).decode('UTF-8').replace('dBm', '').strip() or 'N/A'
 
@@ -46,7 +46,7 @@ def sinfo(key):
     disk = lambda : '%.0f%%'%psutil.disk_usage("/").percent
 
     temp = lambda : subprocess.check_output(
-        """awk '{printf "%.0f°C", $0/1000}' < /sys/class/thermal/thermal_zone0/temp""",
+        """/usr/bin/awk '{printf "%.0f°C", $0/1000}' < /sys/class/thermal/thermal_zone0/temp""",
         shell=True,
     ).decode('UTF-8')
 

@@ -1,0 +1,11 @@
+[Unit]
+Description=Display basic system information on a OLED display
+After=multi-user.target
+
+[Service]
+Type=idle
+ExecStart=/home/pi/RpiHWmonitor/sys_info.py
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target
