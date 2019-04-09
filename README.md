@@ -118,6 +118,8 @@ sudo systemctl  enable   RpiHWmonitor # start after reboot
 sudo reboot
 ```
 
-For more info about `systemctl` usage, see this [tutorial][systemctl].
+For more info about `systemctl` usage, see this [tutorial][systemctl],
+and this article about [auto restart crashed services][restart].
 
 [systemctl]: https://www.digitalocean.com/community/tutorials/how-to-use-systemctl-to-manage-systemd-services-and-units
+[restart]: https://singlebrook.com/2017/10/23/auto-restart-crashed-service-systemd/

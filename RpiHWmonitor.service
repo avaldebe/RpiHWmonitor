@@ -6,6 +6,8 @@ After=multi-user.target
 Type=idle
 ExecStart=/home/pi/RpiHWmonitor/sys_info.py
 KillSignal=SIGINT
+Restart=on-failure
+RestartSec=5s
 
 [Install]
 WantedBy=multi-user.target
